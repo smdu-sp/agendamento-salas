@@ -2,8 +2,9 @@ import Link from "next/link";
 
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+import CategoriaForm from "@/app/(rotas-auth)/avaliacao-limpeza/categorias/_components/categoria-form";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -81,36 +82,8 @@ export default async function EditarCategoriaPage({ params }: PageProps) {
         Estrutura pronta para editar a categoria <span className="font-medium text-foreground">{categoria.nome}</span>.
       </p>
 
-      <div className="mt-6 rounded-xl border bg-card p-5 shadow-sm space-y-4 max-w-3xl">
-        <div className="space-y-1">
-          <p className="text-sm text-muted-foreground">Categoria selecionada</p>
-          <h2 className="text-2xl font-semibold">{categoria.nome}</h2>
-          <p className="text-sm text-muted-foreground">{categoria.descricao || "Sem descrição cadastrada."}</p>
-        </div>
-
-        <div className="space-y-2">
-          <p className="text-sm font-medium">Critérios vinculados</p>
-          <div className="flex flex-wrap gap-2">
-            {categoria.criterios.length > 0 ? (
-              categoria.criterios.map((criterio) => (
-                <Badge key={criterio.id} variant="outline" className="normal-case">
-                  {criterio.nome}
-                </Badge>
-              ))
-            ) : (
-              <span className="text-sm text-muted-foreground">Nenhum critério vinculado.</span>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          <Button asChild variant="outline">
-            <Link href="/avaliacao-limpeza/categorias">Voltar para categorias</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/avaliacao-limpeza/categorias/nova">Nova categoria</Link>
-          </Button>
-        </div>
+      <div className="mt-6 max-w-3xl rounded-xl border bg-card p-5 shadow-sm">
+        <CategoriaForm categoria={categoria} />
       </div>
     </div>
   );

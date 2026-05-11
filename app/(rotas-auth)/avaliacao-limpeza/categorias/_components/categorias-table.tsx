@@ -13,51 +13,37 @@ type CategoriasTableProps = {
 };
 
 export function CategoriasTable({ categorias }: CategoriasTableProps) {
-  const [filtroNome, setFiltroNome] = useState("");
-  const [filtroCriterio, setFiltroCriterio] = useState("");
+  const [busca, setBusca] = useState("");
 
   const categoriasFiltradas = useMemo(() => {
-    const buscaNome = filtroNome.trim().toLowerCase();
-    const buscaCriterio = filtroCriterio.trim().toLowerCase();
+    const termoBusca = busca.trim().toLowerCase();
 
     return categorias.filter((categoria) => {
-      const nomeCoincide = buscaNome
-        ? categoria.nome.toLowerCase().includes(buscaNome)
-        : true;
+      if (!termoBusca) {
+        return true;
+      }
 
-      const criterioCoincide = buscaCriterio
-        ? categoria.criterios.some((criterio) => criterio.nome.toLowerCase().includes(buscaCriterio))
-        : true;
+      const nomeCoincide = categoria.nome.toLowerCase().includes(termoBusca);
+      const criterioCoincide = categoria.criterios.some((criterio) =>
+        criterio.nome.toLowerCase().includes(termoBusca),
+      );
 
-      return nomeCoincide && criterioCoincide;
+      return nomeCoincide || criterioCoincide;
     });
-  }, [categorias, filtroCriterio, filtroNome]);
+  }, [busca, categorias]);
 
   return (
     <div className="space-y-4">
       <div className="rounded-xl border bg-card/70 p-4 md:p-5 shadow-sm">
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="space-y-2">
           <label className="space-y-2">
-            <span className="text-sm font-medium">Buscar por nome</span>
+            <span className="text-sm font-medium">Buscar por categoria ou critério</span>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                value={filtroNome}
-                onChange={(event) => setFiltroNome(event.target.value)}
-                placeholder="Ex.: Banheiros, Salas, Áreas comuns"
-                className="pl-9"
-              />
-            </div>
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-medium">Buscar por critério</span>
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={filtroCriterio}
-                onChange={(event) => setFiltroCriterio(event.target.value)}
-                placeholder="Ex.: limpeza, organização, higiene"
+                value={busca}
+                onChange={(event) => setBusca(event.target.value)}
+                placeholder="Ex.: Banheiros, limpeza, organização, higiene"
                 className="pl-9"
               />
             </div>

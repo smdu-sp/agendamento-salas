@@ -26,7 +26,6 @@ export const columns: ColumnDef<CategoriaRow>[] = [
     cell: ({ row }) => (
       <div className="flex flex-col gap-1 min-w-0">
         <span className="font-medium text-sm md:text-base truncate">{row.original.nome}</span>
-        <span className="text-xs text-muted-foreground">ID {row.original.id}</span>
       </div>
     ),
   },
@@ -59,6 +58,8 @@ export const columns: ColumnDef<CategoriaRow>[] = [
 
       const criteriosVisiveis = criterios.slice(0, 3);
       const criteriosRestantes = criterios.length - criteriosVisiveis.length;
+      const criteriosAdicionais = criterios.slice(criteriosVisiveis.length, criteriosVisiveis.length + 10);
+      const criteriosAdicionaisTitle = criteriosAdicionais.map((criterio) => criterio.nome).join("\n");
 
       return (
         <div className="flex flex-wrap gap-1.5 max-w-[28rem]">
@@ -68,7 +69,11 @@ export const columns: ColumnDef<CategoriaRow>[] = [
             </Badge>
           ))}
           {criteriosRestantes > 0 && (
-            <Badge variant="secondary" className="normal-case text-[11px] md:text-xs">
+            <Badge
+              variant="secondary"
+              className="normal-case cursor-help text-[11px] md:text-xs"
+              title={criteriosAdicionaisTitle}
+            >
               +{criteriosRestantes}
             </Badge>
           )}
@@ -87,7 +92,7 @@ export const columns: ColumnDef<CategoriaRow>[] = [
   },
   {
     id: "acoes",
-    header: "Ações",
+    header: "",
     cell: ({ row }) => (
       <div className="flex justify-end">
         <Button asChild size="sm" variant="outline">
