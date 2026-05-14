@@ -59,7 +59,7 @@ export const columns: ColumnDef<CategoriaRow>[] = [
       const criteriosVisiveis = criterios.slice(0, 3);
       const criteriosRestantes = criterios.length - criteriosVisiveis.length;
       const criteriosAdicionais = criterios.slice(criteriosVisiveis.length, criteriosVisiveis.length + 10);
-      const criteriosAdicionaisTitle = criteriosAdicionais.map((criterio) => criterio.nome).join("\n");
+      const criteriosAdicionaisTitle = criteriosAdicionais.map((criterio) => criterio.nome).join(", ");
 
       return (
         <div className="flex flex-wrap gap-1.5 max-w-[28rem]">

@@ -15,7 +15,7 @@ export default function Titulo({ titulo, descricao, abas }: TituloProps) {
     const tituloFinal = abaAtual ? abaAtual.titulo : titulo ?? "";
     const descricaoFinal = abaAtual ? abaAtual.descricao ?? "" : descricao ?? "";
     return (
-        <div className="mb-6">
+        <div className="mb-6 ml-9">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight">
             {tituloFinal}
           </h1>

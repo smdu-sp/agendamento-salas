@@ -58,6 +58,11 @@ export default async function EditarCategoriaPage({ params }: PageProps) {
     },
   });
 
+  const criteriosCatalogo = await prisma.criterio.findMany({
+    orderBy: { nome: "asc" },
+    select: { nome: true },
+  });
+
   if (!categoria) {
     return (
       <div className="w-full px-0 md:px-8 relative pb-20 md:pb-14 h-full md:container mx-auto">
@@ -83,7 +88,7 @@ export default async function EditarCategoriaPage({ params }: PageProps) {
       </p>
 
       <div className="mt-6 max-w-3xl rounded-xl border bg-card p-5 shadow-sm">
-        <CategoriaForm categoria={categoria} />
+        <CategoriaForm categoria={categoria} criteriosCatalogo={criteriosCatalogo} />
       </div>
     </div>
   );
