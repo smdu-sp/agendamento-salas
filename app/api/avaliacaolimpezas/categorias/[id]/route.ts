@@ -3,11 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
 
+function normalizeCriterionName(value: string) {
+  return value.trim().replace(/\s+/g, " ");
+}
+
 function normalizeCriteria(values: unknown): string[] {
   if (!Array.isArray(values)) return [];
 
   const cleaned = values
-    .map((value) => (typeof value === "string" ? value.trim() : ""))
+    .map((value) => (typeof value === "string" ? normalizeCriterionName(value) : ""))
     .filter(Boolean);
 
   const seen = new Set<string>();
@@ -21,6 +25,54 @@ function normalizeCriteria(values: unknown): string[] {
   }
 
   return result;
+}
+
+type CriterioEmUso = {
+  nome: string;
+  categoriaNome: string;
+};
+
+async function findCriterionConflicts(db: typeof prisma, criterioNomes: string[], categoriaId: number) {
+  if (criterioNomes.length === 0) return [];
+
+  const criteriosEmUso = await db.criterio.findMany({
+    where: { categoriaAvaliacaoId: { not: categoriaId } },
+    select: {
+      nome: true,
+      categoria: {
+        select: { nome: true },
+      },
+    },
+  });
+
+  const usadosPorNome = new Map<string, CriterioEmUso>();
+  for (const criterio of criteriosEmUso) {
+    const chave = normalizeCriterionName(criterio.nome).toLowerCase();
+    if (usadosPorNome.has(chave)) continue;
+
+    usadosPorNome.set(chave, {
+      nome: criterio.nome,
+      categoriaNome: criterio.categoria.nome,
+    });
+  }
+
+  return criterioNomes
+    .map((nome) => {
+      const conflito = usadosPorNome.get(normalizeCriterionName(nome).toLowerCase());
+      return conflito ? { nome, categoriaNome: conflito.categoriaNome } : null;
+    })
+    .filter((item): item is CriterioEmUso => item !== null);
+}
+
+function formatCriterionConflictMessage(conflitos: CriterioEmUso[]) {
+  const nomes = conflitos.map((item) => `"${item.nome}"`);
+  const categorias = new Set(conflitos.map((item) => item.categoriaNome));
+
+  if (conflitos.length === 1 && categorias.size === 1) {
+    return `O critério ${nomes[0]} já está vinculado à categoria ${conflitos[0].categoriaNome}`;
+  }
+
+  return `Os critérios ${nomes.join(", ")} já estão vinculados a outras categorias`;
 }
 
 async function deleteCriteriaChain(tx: typeof prisma, criterioIds: number[]) {
@@ -110,6 +162,14 @@ export async function PATCH(
 
   if (conflito) {
     return NextResponse.json({ error: "Já existe uma categoria com este nome" }, { status: 409 });
+  }
+
+  const conflitosCriterios = await findCriterionConflicts(prisma, criteriosRecebidos, categoriaId);
+  if (conflitosCriterios.length > 0) {
+    return NextResponse.json(
+      { error: formatCriterionConflictMessage(conflitosCriterios) },
+      { status: 409 },
+    );
   }
 
   const categoria = await prisma.$transaction(async (tx) => {
