@@ -36,7 +36,12 @@ async function findCriterionConflicts(db: typeof prisma, criterioNomes: string[]
   if (criterioNomes.length === 0) return [];
 
   const criteriosEmUso = await db.criterio.findMany({
-    where: { categoriaAvaliacaoId: { not: categoriaId } },
+    where: {
+      categoria: {
+        ativo: true,
+        id: { not: categoriaId },
+      },
+    },
     select: {
       nome: true,
       categoria: {
@@ -73,31 +78,6 @@ function formatCriterionConflictMessage(conflitos: CriterioEmUso[]) {
   }
 
   return `Os critérios ${nomes.join(", ")} já estão vinculados a outras categorias`;
-}
-
-async function deleteCriteriaChain(tx: typeof prisma, criterioIds: number[]) {
-  if (criterioIds.length === 0) return;
-
-  const avaliacaoCriterios = await tx.avaliacaoCriterio.findMany({
-    where: { criterioAvaliacaoId: { in: criterioIds } },
-    select: { id: true },
-  });
-
-  const avaliacaoCriterioIds = avaliacaoCriterios.map((item) => item.id);
-
-  if (avaliacaoCriterioIds.length > 0) {
-    await tx.arquivoAvaliacao.deleteMany({
-      where: { avaliacaoCriterioId: { in: avaliacaoCriterioIds } },
-    });
-  }
-
-  await tx.avaliacaoCriterio.deleteMany({
-    where: { criterioAvaliacaoId: { in: criterioIds } },
-  });
-
-  await tx.criterio.deleteMany({
-    where: { id: { in: criterioIds } },
-  });
 }
 
 async function ensureAccess() {
@@ -142,8 +122,8 @@ export async function PATCH(
   const descricao = typeof body.descricao === "string" ? body.descricao.trim() || null : null;
   const criteriosRecebidos = normalizeCriteria(body.criterios);
 
-  const categoriaExistente = await prisma.categoria.findUnique({
-    where: { id: categoriaId },
+  const categoriaExistente = await prisma.categoria.findFirst({
+    where: { id: categoriaId, ativo: true },
     include: {
       criterios: {
         select: { id: true, nome: true },
@@ -247,8 +227,8 @@ export async function DELETE(
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
 
-  const categoria = await prisma.categoria.findUnique({
-    where: { id: categoriaId },
+  const categoria = await prisma.categoria.findFirst({
+    where: { id: categoriaId, ativo: true },
     select: { id: true },
   });
 
@@ -257,18 +237,9 @@ export async function DELETE(
   }
 
   await prisma.$transaction(async (tx) => {
-    const criterios = await tx.criterio.findMany({
-      where: { categoriaAvaliacaoId: categoriaId },
-      select: { id: true },
-    });
-
-    await deleteCriteriaChain(
-      tx,
-      criterios.map((criterio) => criterio.id),
-    );
-
-    await tx.categoria.delete({
+    await tx.categoria.update({
       where: { id: categoriaId },
+      data: { ativo: false },
     });
   });
 

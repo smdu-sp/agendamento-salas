@@ -2,6 +2,7 @@ model Categoria {
     id                  Int         @id @default(autoincrement())
     nome                String      @unique
     descricao           String?
+    ativo               Boolean     @default(true)
 
     criadoEm            DateTime    @default(now())
     atualizadoEm        DateTime    @default(now()) @updatedAt

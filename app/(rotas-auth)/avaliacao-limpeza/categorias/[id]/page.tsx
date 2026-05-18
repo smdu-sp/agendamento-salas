@@ -42,8 +42,8 @@ export default async function EditarCategoriaPage({ params }: PageProps) {
     );
   }
 
-  const categoria = await prisma.categoria.findUnique({
-    where: { id: categoriaId },
+  const categoria = await prisma.categoria.findFirst({
+    where: { id: categoriaId, ativo: true },
     select: {
       id: true,
       nome: true,

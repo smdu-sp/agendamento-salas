@@ -36,7 +36,12 @@ async function findCriterionConflicts(db: typeof prisma, criterioNomes: string[]
   if (criterioNomes.length === 0) return [];
 
   const criteriosEmUso = await db.criterio.findMany({
-    where: categoriaId ? { categoriaAvaliacaoId: { not: categoriaId } } : undefined,
+    where: {
+      categoria: {
+        ativo: true,
+        ...(categoriaId ? { id: { not: categoriaId } } : {}),
+      },
+    },
     select: {
       nome: true,
       categoria: {
@@ -119,6 +124,7 @@ export async function GET() {
   if ("error" in access) return access.error;
 
   const lista = await prisma.categoria.findMany({
+    where: { ativo: true },
     orderBy: { nome: "asc" },
     include: {
       criterios: {
