@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import DataTable from "@/components/data-table";
+import { useSearchParams } from "next/navigation";
 import { columns } from "./columns";
 
 export interface AvaliacaoData {
@@ -57,10 +58,16 @@ const getMensagemMedia = (media: number) => {
 
 interface ResponsiveAvaliacaoViewProps {
   data: AvaliacaoData[];
+  totalItens: number;
   loading?: boolean;
 }
 
-export default function ResponsiveAvaliacaoView({ data, loading = false }: ResponsiveAvaliacaoViewProps) {
+export default function ResponsiveAvaliacaoView({ data, totalItens, loading = false}: ResponsiveAvaliacaoViewProps) {
+
+  const searchParams = useSearchParams();
+  const pagina = Number(searchParams.get("pagina")) || 1;
+  const limite = Number(searchParams.get("limite")) || 10;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -81,7 +88,15 @@ export default function ResponsiveAvaliacaoView({ data, loading = false }: Respo
     <>
       {/* Desktop View - Hidden em mobile */}
       <div className="hidden md:block w-full">
-        <DataTable columns={columns} data={data} />
+        <DataTable
+          columns={columns}
+          data={data}
+          paginaAtual={pagina}
+          limitePorPagina={limite}
+          totalItens={totalItens}
+          labelItemSingular="avaliação"
+          labelItemPlural="avaliações"
+        />
       </div>
 
       {/* Mobile View - Hidden em desktop */}

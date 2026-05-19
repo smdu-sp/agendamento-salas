@@ -1,146 +1,138 @@
-/** @format */
+"use client";
 
-'use client';
+import {
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
-	type ColumnDef,
-	flexRender,
-	getCoreRowModel,
-	useReactTable,
-} from '@tanstack/react-table';
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-import { Paginacao } from './paginacao';
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import { cn } from "@/lib/utils";
+
+import { Paginacao } from "./paginacao";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface DataTableProps<TData, TValue> {
-	columns: ColumnDef<TData, TValue>[];
-	data: TData[];
-	className?: string;
-	totalItens?: number;
-	labelItemSingular?: string;
-	labelItemPlural?: string;
-	onLimiteChange?: (limite: number) => void;
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+
+  className?: string;
+
+  paginaAtual: number;
+  limitePorPagina: number;
+  totalItens: number;
+
+  labelItemSingular?: string;
+  labelItemPlural?: string;
 }
 
 export default function DataTable<TData, TValue>({
-	columns,
-	data,
-	className,
-	totalItens = 0,
-	labelItemSingular = "item",
-	labelItemPlural = "itens",
-	onLimiteChange,
+  columns,
+  data,
+
+  className,
+
+  paginaAtual,
+  limitePorPagina,
+  totalItens,
+
+  labelItemSingular = "item",
+  labelItemPlural = "itens",
 }: DataTableProps<TData, TValue>) {
-	const [paginaAtual, setPaginaAtual] = useState(1);
-	const [limitePorPagina, setLimitePorPagina] = useState(10);
+  const router = useRouter();
 
-	const totalItensReal = totalItens || data.length;
-	const totalPaginas = Math.ceil(totalItensReal / limitePorPagina) || 1;
+  const pathname = usePathname();
 
-	const dadosPaginados = useMemo(() => {
-		const indiceInicial = (paginaAtual - 1) * limitePorPagina;
-		const indiceFinal = indiceInicial + limitePorPagina;
-		return data.slice(indiceInicial, indiceFinal);
-	}, [data, paginaAtual, limitePorPagina]);
+  const searchParams = useSearchParams();
 
-	const table = useReactTable({
-		data: dadosPaginados,
-		columns,
-		getCoreRowModel: getCoreRowModel(),
-	});
+  const totalPaginas = Math.ceil(totalItens / limitePorPagina) || 1;
 
-	const handlePageChange = useCallback((novoNumero: number) => {
-		if (novoNumero >= 1 && novoNumero <= totalPaginas) {
-			setPaginaAtual(novoNumero);
-		}
-	}, [totalPaginas]);
+  const table = useReactTable({
+    data,
+    columns,
 
-	const handleLimiteChange = useCallback((novoLimite: number) => {
-		setLimitePorPagina(novoLimite);
-		setPaginaAtual(1);
-		if (onLimiteChange) {
-			onLimiteChange(novoLimite);
-		}
-	}, [onLimiteChange]);
+    getCoreRowModel: getCoreRowModel(),
+  });
 
-	useEffect(() => {
-		setPaginaAtual(1);
-	}, [data]);
+  const handlePageChange = (novaPagina: number) => {
+    const params = new URLSearchParams(searchParams.toString());
 
-	return (
-		<div className={cn("w-full overflow-x-auto rounded-md border", className)}>
-			<Table className="bg-background dark:bg-muted/50 w-full min-w-full">
-				<TableHeader className="bg-primary hover:bg-primary">
-					{table.getHeaderGroups().map((headerGroup) => (
-						<TableRow className="hover:bg-primary" key={headerGroup.id}>
-							{headerGroup.headers.map((header) => (
-								<TableHead
-									className="text-white text-xs sm:text-sm text-nowrap px-2 sm:px-4 py-2 sm:py-3"
-									key={header.id}
-								>
-									{header.isPlaceholder
-										? null
-										: flexRender(
-												header.column.columnDef.header,
-												header.getContext(),
-											)}
-								</TableHead>
-							))}
-						</TableRow>
-					))}
-				</TableHeader>
-				<TableBody>
-					{table.getRowModel().rows?.length ? (
-						table.getRowModel().rows.map((row) => (
-							<TableRow
-								className="hover:bg-muted/50 transition-colors"
-								key={row.id}
-								data-state={row.getIsSelected() ? 'selected' : undefined}
-							>
-								{row.getVisibleCells().map((cell) => (
-									<TableCell
-										key={cell.id}
-										className="text-xs sm:text-sm px-2 sm:px-4 py-2 sm:py-3 font-light break-words"
-									>
-										{flexRender(
-											cell.column.columnDef.cell,
-											cell.getContext(),
-										)}
-									</TableCell>
-								))}
-							</TableRow>
-						))
-					) : (
-						<TableRow>
-							<TableCell
-								colSpan={columns.length}
-								className="h-24 text-center text-muted-foreground"
-							>
-								Sem resultados.
-							</TableCell>
-						</TableRow>
-					)}
-				</TableBody>
-			</Table>
-			<Paginacao
-				paginaAtual={paginaAtual}
-				totalPaginas={totalPaginas}
-				totalItens={totalItensReal}
-				limitePorPagina={limitePorPagina}
-				labelItemSingular={labelItemSingular}
-				labelItemPlural={labelItemPlural}
-				onPageChange={handlePageChange}
-				onLimiteChange={handleLimiteChange}
-			/>
-		</div>
-	);
+    params.set("pagina", String(novaPagina));
+
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleLimiteChange = (novoLimite: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("limite", String(novoLimite));
+
+    params.set("pagina", "1");
+
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  return (
+    <div className={cn("w-full overflow-x-auto rounded-md border", className)}>
+      <Table className="bg-background dark:bg-muted/50">
+        <TableHeader className="bg-primary hover:bg-primary">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id} className="hover:bg-primary">
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id} className="text-white">
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+
+        <TableBody>
+          {table.getRowModel().rows.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                Sem resultados.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      <Paginacao
+        paginaAtual={paginaAtual}
+        totalPaginas={totalPaginas}
+        totalItens={totalItens}
+        limitePorPagina={limitePorPagina}
+        labelItemSingular={labelItemSingular}
+        labelItemPlural={labelItemPlural}
+        onPageChange={handlePageChange}
+        onLimiteChange={handleLimiteChange}
+      />
+    </div>
+  );
 }

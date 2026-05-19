@@ -4,19 +4,20 @@ import { columns } from "./columns";
 import { ActionButton } from "@/components/action-button";
 import { Plus } from "lucide-react";
 
-const LIMITE_SALAS = 10;
-
 interface SalasContentProps {
   pagina?: number;
+  limite?: number;
 }
 
 export async function SalasContent({
   pagina = 1,
+  limite = 10,
 }: SalasContentProps) {
   const paginaAtual = Math.max(1, pagina);
+  const limiteAtual = Math.max(1, limite);
 
   const skip =
-    (paginaAtual - 1) * LIMITE_SALAS;
+    (paginaAtual - 1) * limiteAtual;
 
   const [lista, total] = await Promise.all([
     prisma.salaAvaliacaoLimpeza.findMany({
@@ -30,13 +31,12 @@ export async function SalasContent({
       },
 
       skip,
-      take: LIMITE_SALAS,
+
+      take: limiteAtual,
     }),
 
     prisma.salaAvaliacaoLimpeza.count(),
   ]);
-
-  
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -49,18 +49,15 @@ export async function SalasContent({
         />
       </div>
 
-      <div className="flex w-full flex-col gap-3">
-        <DataTable
-          columns={columns}
-          data={lista}
-          totalItens={total}
-          labelItemSingular="sala"
-          labelItemPlural="salas"
-          enableSearch
-          searchField="nome"
-          searchPlaceholder="Buscar sala por nome..."
-        />
-      </div>
+      <DataTable
+        columns={columns}
+        data={lista}
+        paginaAtual={paginaAtual}
+        limitePorPagina={limiteAtual}
+        totalItens={total}
+        labelItemSingular="sala"
+        labelItemPlural="salas"
+      />
     </div>
   );
 }

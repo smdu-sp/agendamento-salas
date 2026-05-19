@@ -24,7 +24,7 @@ export default function ServiceCards() {
         </div>
       </Link>
 
-      <Link href="/">
+      <Link href="/avaliacao-limpeza">
         <div className="relative h-[180px] border rounded-xl p-5 cursor-pointer hover:shadow-md hover:bg-muted/50 transition-all">
           
           <div className="flex items-center gap-3">
