@@ -6,7 +6,7 @@ export function ReservasContent() {
   return (
     <div className="flex flex-col gap-3 my-5 w-full">
       <section className="grid gap-4 md:grid-cols-2">
-        <Link href="/reservas/nova">
+        <Link href="/reserva-salas/nova">
           <div className="border border-border rounded-lg p-4 hover:shadow-md cursor-pointer bg-card">
             <h2 className="font-medium">Nova Reserva</h2>
             <p className="text-sm text-muted-foreground">

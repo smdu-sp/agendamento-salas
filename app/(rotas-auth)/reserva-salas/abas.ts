@@ -19,4 +19,10 @@ export const abasReservaSalas: IAba[] = [
     descricao: "Visualize a agenda das salas.",
     permissoes: ["DEV", "ADM"],
   },
+  {
+  url: "/reserva-salas/nova",
+  titulo: "Nova Reserva",
+  descricao: "Criar uma nova reserva de sala.",
+  permissoes: ["USR", "DEV", "ADM"],
+}
 ];

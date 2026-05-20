@@ -96,7 +96,7 @@ export async function criarReserva(
     return { erro: "Já existe uma reserva nesta sala no horário escolhido." };
   }
 
-  const salaReserva = await prisma.sala.findFirst({
+  const salaReserva = await prisma.salaReserva.findFirst({
     where: { id: salaId, ativo: true },
     select: {
       id: true,
@@ -123,10 +123,22 @@ export async function criarReserva(
       foto.descricao.length > 120 ? foto.descricao.slice(0, 120) : foto.descricao;
   }
 
+let usuarioIdGravar: string | null = null;
+if (usuario.id) {
+  const usuarioExiste = await prisma.usuario.findUnique({
+    where: { id: usuario.id },
+    select: { id: true },
+  });
+  if (!usuarioExiste) {
+    return { erro: "Usuário não encontrado no sistema." };
+  }
+  usuarioIdGravar = usuario.id;
+}
+
   const reserva = await prisma.reserva.create({
     data: {
       salaId,
-      usuarioId: usuario.id ?? null,
+      usuarioId: usuarioIdGravar,
       usuarioLogin: usuario.login,
       usuarioNome: usuarioNomeGravar,
       coordenadoriaId,
@@ -159,10 +171,10 @@ export async function criarReserva(
     });
   }
 
-  revalidatePath("/reservas/minhas");
+  revalidatePath("/reserva-salas/minhas");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/admin");
-  redirect("/reservas/minhas?criada=1");
+  redirect("/reserva-salas/minhas?criada=1");
 }
 
 export async function cancelarReserva(

@@ -70,7 +70,7 @@ export async function PATCH(
     return NextResponse.json({ error: "ID obrigatório" }, { status: 400 });
   }
 
-  const salaExiste = await prisma.sala.findUnique({
+  const salaExiste = await prisma.salaReserva.findUnique({
     where: { id },
     select: { id: true },
   });

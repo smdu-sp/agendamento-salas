@@ -5,7 +5,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SquarePen } from 'lucide-react';
-import ModalDelete from './modal-delete';
 
 export type SalaRow = Pick<
 	SalaAvaliacaoLimpeza,

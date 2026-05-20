@@ -39,13 +39,13 @@ export default async function MinhasReservasPage({ searchParams }: PageProps) {
       <div className="flex flex-col max-w-sm mx-auto md:max-w-full gap-3 my-5 w-full">
         <div className="flex justify-end">
           <Button asChild>
-            <Link href="/reservas/nova">Nova reserva</Link>
+            <Link href="/reserva-salas/nova">Nova reserva</Link>
           </Button>
         </div>
         {reservas.length === 0 ? (
           <p className="text-sm text-muted-foreground py-4">
             Você não possui reservas futuras.{" "}
-            <Link href="/reservas/nova" className="text-primary underline">
+            <Link href="/reserva-salas/nova" className="text-primary underline">
               Fazer uma reserva
             </Link>
           </p>

@@ -1,22 +1,36 @@
 import { auth } from "@/lib/auth/auth";
-import { SalasContent } from "../../salas/_components/salas-context";
+import { SalasContent } from "./_components/salas-content";
 import { redirect } from "next/navigation";
 
 interface SalasPageProps {
-  searchParams: { pagina?: string };
+  searchParams: {
+    pagina?: string;
+  };
 }
 
-export default async function SalasPage({ searchParams }: SalasPageProps) {
+export default async function SalasPage({
+  searchParams,
+}: SalasPageProps) {
   const session = await auth();
-  if (!session) redirect("/login");
+
+  if (!session) {
+    redirect("/login");
+  }
 
   const usuario = (session as any).usuario;
-  const isAdmin = usuario?.permissao === "ADM" || usuario?.permissao === "DEV";
 
-  if (!isAdmin) redirect("/reserva-salas");
+  const isAdmin =
+    usuario?.permissao === "ADM" ||
+    usuario?.permissao === "DEV";
 
-  const params = await searchParams
-  const pagina = parseInt(params.pagina || "1", 10);
+  if (!isAdmin) {
+    redirect("/reserva-salas");
+  }
+
+  const pagina = parseInt(
+    searchParams.pagina ?? "1",
+    10,
+  );
 
   return (
     <div className="flex items-center justify-center py-8">

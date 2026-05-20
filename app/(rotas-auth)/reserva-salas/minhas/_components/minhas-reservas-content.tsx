@@ -14,7 +14,7 @@ export async function MinhasReservasContent({ usuarioLogin }: MinhasReservasCont
       {reservas.length === 0 ? (
         <p className="text-sm text-muted-foreground py-4">
           Você não possui reservas futuras.{" "}
-          <Link href="/reservas/nova" className="text-primary underline">
+          <Link href="/reserva-salas/nova" className="text-primary underline">
             Fazer uma reserva
           </Link>
         </p>

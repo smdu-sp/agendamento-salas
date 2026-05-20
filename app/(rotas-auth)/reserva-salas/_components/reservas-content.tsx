@@ -1,4 +1,4 @@
-import { MinhasReservasContent } from "../../reservas/minhas/_components/minhas-reservas-content";
+import { MinhasReservasContent } from "../minhas/_components/minhas-reservas-content";
 import { ProximosEventos } from "../admin/_components/proximos-eventos";
 import { ActionButton } from "@/components/action-button";
 import { Plus } from "lucide-react";
@@ -21,7 +21,7 @@ export async function ReservasContent({ usuario }: ReservasContentProps) {
         <ActionButton
           title="Criar Reserva"
           description="Agende uma nova sala para sua reunião ou evento"
-          href="/reservas/nova"
+          href="/reserva-salas/nova"
           icon={Plus}
         />
       </div>

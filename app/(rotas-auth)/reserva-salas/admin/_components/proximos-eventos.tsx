@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Paginacao } from "@/components/paginacao";
-import { cancelarReserva } from "@/app/(rotas-auth)/reservas/actions";
+import { cancelarReserva } from "@/app/(rotas-auth)/reserva-salas/actions";
 import { toast } from "sonner";
 import { ReservaAdmin } from "../../types";
 
